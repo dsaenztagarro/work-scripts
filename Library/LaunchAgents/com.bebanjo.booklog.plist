@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.bebanjo.booklog</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>ProcessType</key>
+    <string>Background</string>
+    <key>Disabled</key>
+    <false/>
+    <key>ProgramArguments</key>
+    <array>
+      <string>/Users/dst/Scripts/com.bebanjo.booklog.sh</string>
+    </array>
+    <key>StandardOutPath</key>
+    <string>/Users/dst/Library/Logs/com.bebanjo.booklog.out</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/dst/Library/Logs/com.bebanjo.booklog.err</string>
+    <key>Debug</key>
+    <true/>
+</dict>
+</plist>
