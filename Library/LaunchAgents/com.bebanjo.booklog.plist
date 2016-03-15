@@ -12,12 +12,12 @@
     <false/>
     <key>ProgramArguments</key>
     <array>
-      <string>/Users/dst/Scripts/com.bebanjo.booklog.sh</string>
+      <string>/Users/dsaenz/Scripts/com.bebanjo.booklog.sh</string>
     </array>
     <key>StandardOutPath</key>
-    <string>/Users/dst/Library/Logs/com.bebanjo.booklog.out</string>
+    <string>/Users/dsaenz/Library/Logs/com.bebanjo.booklog.out</string>
     <key>StandardErrorPath</key>
-    <string>/Users/dst/Library/Logs/com.bebanjo.booklog.err</string>
+    <string>/Users/dsaenz/Library/Logs/com.bebanjo.booklog.err</string>
     <key>Debug</key>
     <true/>
 </dict>

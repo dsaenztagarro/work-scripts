@@ -1,4 +1,4 @@
 #!/bin/bash --login
-env_ruby
-cd /Users/dst/Work/bebanjo-blog
-jekyll serve
+load_rbenv
+cd /Users/dsaenz/Work/bebanjo-blog
+jekyll serve --port 3000
