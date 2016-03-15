@@ -1,4 +1,4 @@
 #!/bin/bash --login
 load_rbenv
-cd /Users/dsaenz/Work/bebanjo-blog
-jekyll serve --port 3000
+cd /Users/dsaenz/Projects/bebanjo-blog
+jekyll serve --incremental --port 3000
