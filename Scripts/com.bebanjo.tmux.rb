@@ -1,30 +1,37 @@
 #!/usr/bin/env ruby
-#
-require 'bundler/inline'
 
-gemfile do
-  source 'https://rubygems.org'
-  gem 'patryn', path: '~/Projects/patryn'
-  gem 'tmuxinator'
-end
+gem 'patryn'
+
+require 'patryn'
 
 LOGFILE_PATH = File.expand_path '~/Library/Logs/com.bebanjo.tmuxworkflow.out'
 
 class TmuxWorkflow < Patryn::Base
-  logger_options device: File.open(LOGFILE_PATH, 'w'), level: :info
+  logger_options device: File.open(LOGFILE_PATH, 'w'), level: :debug
 
   def shoot
+    log_environment
     create_tmux_sessions
-    create_log
+    log_results
   end
 
   private
 
-  def create_tmux_sessions
-    @results = projects.map { |project| system("tmuxinator start #{project}") }
+  def log_environment
+    logger.warn "*******************************"
+    logger.warn " RUBY VERSION: #{`ruby --version`.delete("\n")}"
+    logger.warn " ARGS: #{ARGV}"
+    logger.warn "*******************************"
   end
 
-  def create_log
+  def create_tmux_sessions
+    @results = projects.map do |project|
+      system("touch #{project}")
+      system("tmuxinator start #{project}")
+    end
+  end
+
+  def log_results
     projects.zip(@results).each do |project, result|
       if result
         logger.info "Created a new session with name #{project}"
@@ -39,4 +46,4 @@ class TmuxWorkflow < Patryn::Base
   end
 end
 
-TmuxWorkflow.new.run
+TmuxWorkflow.new.shoot
