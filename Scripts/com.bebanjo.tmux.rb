@@ -29,7 +29,7 @@ end
 
 class KillSessionCommand < Command
   def command
-    "tmux kill-session #{@session}"
+    "tmux kill-session -t #{@session}"
   end
 end
 
