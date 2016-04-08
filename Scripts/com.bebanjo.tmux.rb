@@ -13,22 +13,22 @@ class Command
   end
 
   def run
-    system command
+    system shell_script
   end
 
   def to_s
-    command
+    shell_script
   end
 end
 
 class NewSessionCommand < Command
-  def command
+  def shell_script
     "tmuxinator start #{@session}"
   end
 end
 
 class KillSessionCommand < Command
-  def command
+  def shell_script
     "tmux kill-session -t #{@session}"
   end
 end
@@ -37,7 +37,7 @@ class TmuxWorkflow < Patryn::Base
   logger_options device: File.open(LOGFILE_PATH, 'w'), level: :debug
 
   def shoot
-    logger.debug { "Current tmux sessions: #{current_sessions.join ' '}" }
+    logger.debug { "Current tmux sessions: #{current_sessions.join "\n"}" }
     commands.each do |command|
       if command.run
         logger.info command
@@ -51,11 +51,8 @@ class TmuxWorkflow < Patryn::Base
 
   def commands
     projects.map do |project|
-      if current_sessions.include? project
-        KillSessionCommand.new(project)
-      else
-        NewSessionCommand.new(project)
-      end
+      action = (current_sessions.include? project)? 'Kill' : 'New'
+      Object.const_get("#{action}SessionCommand").new(project)
     end
   end
 
