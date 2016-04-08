@@ -36,6 +36,12 @@ end
 class TmuxWorkflow < Patryn::Base
   logger_options device: File.open(LOGFILE_PATH, 'w'), level: :debug
 
+  def opt_parser_options
+    lambda do |parser|
+      # parser.on
+    end
+  end
+
   def shoot
     logger.debug { "Current tmux sessions: #{current_sessions.join "\n"}" }
     commands.each do |command|
