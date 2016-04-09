@@ -62,16 +62,9 @@ class TmuxWorkflow < Patryn::Base
     end
   end
 
-  # Example shell command:
-  #
-  # $ tmux list-sessions
-  # bebanjo_blog: 4 windows (created Wed Apr  6 15:45:14 2016) [191x53]
-  # bebanjo_movida: 6 windows (created Wed Apr  6 15:44:32 2016) [191x53]
-  # bebanjo_my: 4 windows (created Wed Apr  6 14:31:40 2016) [143x39] (attached)
-  #
   def current_sessions
     @current_sessions =
-      `tmux list-sessions | awk '{ print substr($1,0,length($1)-1) }'`
+      `tmux list-sessions -F '\#{session_name}'`
       .split("\n")
   end
 
