@@ -3,17 +3,21 @@
 gem 'patryn'
 
 require 'patryn'
+require 'ostruct'
 require 'byebug'
 
 LOGFILE_PATH = File.expand_path '~/Library/Logs/com.bebanjo.tmuxworkflow.out'
 
+# Base abstract command
 class Command
   def initialize(session)
     @session = session
   end
 
   def run
-    system shell_script
+    Thread.new do
+      system shell_script
+    end
   end
 
   def to_s
@@ -21,31 +25,39 @@ class Command
   end
 end
 
+# Represents a 'tmuxinator start [PROJECT]' command
 class NewSessionCommand < Command
   def shell_script
     "tmuxinator start #{@session}"
   end
 end
 
+# Represents a 'tmux kill-session [-t target-session]' command
 class KillSessionCommand < Command
   def shell_script
     "tmux kill-session -t #{@session}"
   end
 end
 
+# Batch runner for tmuxinator
 class TmuxWorkflow < Patryn::Base
-  logger_options device: File.open(LOGFILE_PATH, 'w'), level: :debug
-
-  def opt_parser_options
-    lambda do |parser|
-      # parser.on
-    end
-  end
+  attr_reader :commands
 
   def shoot
-    logger.debug { "Current tmux sessions: #{current_sessions.join "\n"}" }
-    commands.each do |command|
-      if command.run
+    generate_commands
+    run_commands
+    log_execution
+  end
+
+  private
+
+  def run_commands
+    @threads = commands.map { |command| command.run }.each(&:join)
+  end
+
+  def log_execution
+    @threads.zip(commands).each do |thread, command|
+      if thread.value
         logger.info command
       else
         logger.error "FAIL: #{command}"
@@ -53,24 +65,38 @@ class TmuxWorkflow < Patryn::Base
     end
   end
 
-  private
-
-  def commands
-    projects.map do |project|
-      action = (current_sessions.include? project)? 'Kill' : 'New'
+  def generate_commands
+    @commands = projects.map do |project|
+      action = (self.class.current_sessions.include? project)? 'Kill' : 'New'
       Object.const_get("#{action}SessionCommand").new(project)
     end
   end
 
-  def current_sessions
-    @current_sessions =
-      `tmux list-sessions -F '\#{session_name}'`
-      .split("\n")
+  def self.current_sessions
+    `tmux list-sessions -F '\#{session_name}'`.split("\n")
   end
 
   def projects
-    @projects ||= ARGV
+    options.projects.map { |project| "#{@options.prefix}#{project}" }
+  end
+
+  def opt_parser
+    OptionParser.new do |parser|
+      parser.on('-pPREFIX', '--prefix=PREFIX', 'Prefix of sessions name') do |prefix|
+        options.prefix = prefix
+      end
+      parser.on('-sPROJECTS', '--projects=PROJECTS', 'Tmuxinator project names') do |projects|
+        options.projects = projects.split(' ')
+      end
+    end
+  end
+
+  def default_options
+    OpenStruct.new.tap do |options|
+      options.prefix = ''
+      options.projects = []
+    end
   end
 end
 
-TmuxWorkflow.new.run
+TmuxWorkflow.new().run
