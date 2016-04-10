@@ -5,16 +5,16 @@ Language: `/bin/bash`
 Script:
 
 ```bash
+query="{query}"
 source "${HOME}/.bash_profile"
-cd $HOME/Scripts
-./myscript.rb
+cd $HOME/Scripts/ruby/lib/
+./com.bebanjo.tmux.rb --prefix='project_' --projects='{query}'
 ```
 
 Script configuration
 --------------------
 
 ```
-cd ~/Scrips
-rvm use 2.1.5
-gem install tmuxinator
+cd ~/Scrips/ruby
+bundle
 ```

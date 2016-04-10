@@ -41,6 +41,8 @@ end
 
 # Batch runner for tmuxinator
 class TmuxWorkflow < Patryn::Base
+  logger_options device: File.open(LOGFILE_PATH, 'w'), level: :info
+
   attr_reader :commands
 
   def shoot
@@ -50,6 +52,13 @@ class TmuxWorkflow < Patryn::Base
   end
 
   private
+
+  def generate_commands
+    @commands = projects.map do |project|
+      action = (self.class.current_sessions.include? project)? 'Kill' : 'New'
+      Object.const_get("#{action}SessionCommand").new(project)
+    end
+  end
 
   def run_commands
     @threads = commands.map { |command| command.run }.each(&:join)
@@ -63,17 +72,6 @@ class TmuxWorkflow < Patryn::Base
         logger.error "FAIL: #{command}"
       end
     end
-  end
-
-  def generate_commands
-    @commands = projects.map do |project|
-      action = (self.class.current_sessions.include? project)? 'Kill' : 'New'
-      Object.const_get("#{action}SessionCommand").new(project)
-    end
-  end
-
-  def self.current_sessions
-    `tmux list-sessions -F '\#{session_name}'`.split("\n")
   end
 
   def projects
@@ -91,7 +89,11 @@ class TmuxWorkflow < Patryn::Base
     end
   end
 
-  def default_options
+  def self.current_sessions
+    `tmux list-sessions -F '\#{session_name}'`.split("\n")
+  end
+
+  def self.default_options
     OpenStruct.new.tap do |options|
       options.prefix = ''
       options.projects = []
