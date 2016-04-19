@@ -38,3 +38,8 @@ Script configuration
 cd ~/Scrips/ruby
 bundle
 ```
+
+Commands
+--------
+
+- `tmux list-panes -s -F "#{session_name} #{pane_id} #{pane_current_command}"`
